@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Message Filter Exporter",
   "description": "Export and import Thunderbird message filters per mail account.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "browser_specific_settings": {
     "gecko": {
       "id": "message-filter-exporter@richard.rudolph",

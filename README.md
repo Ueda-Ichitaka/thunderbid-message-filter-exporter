@@ -18,14 +18,38 @@ mail account.
     lists them and offers Overwrite, Skip these (write only the new files)
     or Cancel (write nothing). Selected filters that share a name get
     ` (2)`, ` (3)`, ... appended so they don't overwrite each other.
-- **Import** reads such a file and appends only the filters that are not
-  already present on the shown account (matched by name, type, conditions,
-  and actions - the enabled/disabled state is ignored). Filters that are
-  already present are left untouched and not duplicated.
+- **Import** opens a file dialog in which one or more files can be selected
+  (one filter per file, as written by Export; files with several filters,
+  such as a copied `msgFilterRules.dat`, work too). For each filter:
+  - No local filter with that name: the filter is added.
+  - A local filter with that name: the two are merged. Conditions and actions
+    that are only in the file are added, local ones are never removed, and
+    the local enabled state is kept. A filter that is already identical (the
+    enabled state aside) is left alone. For every difference that cannot be
+    combined a prompt shows both sides and offers Keep local, Use file or
+    Cancel (skips this filter, the local one stays unchanged):
+    - a condition with the same field and value but another operator (e.g.
+      local "From is a@b.de", file "From contains a@b.de"),
+    - "all conditions" against "any condition" (a filter with a single
+      condition takes the combination of the other side without asking),
+      or "all messages" against conditions,
+    - when the filter runs,
+    - an action that may appear only once with another value (e.g. Move to
+      folder X against Y, or a priority), or actions that exclude each other
+      (Move against Delete, Mark read against Mark unread). Copy to folder,
+      Tag and Forward may appear several times and are simply added.
+  - Move to folder, Copy to folder and Reply (template) actions taken from
+    the file always lose their target, so mail can never end up in a folder
+    of another account. Thunderbird's own Filter Editor opens for that filter
+    with "Choose Folder..." and a note listing the previously configured
+    folder or template, so you can pick (or first create) the matching
+    folder of this account. OK saves the filter, Cancel skips it.
 
-The result of an export or import is shown in the status bar at the bottom
-of the Message Filters dialog. Errors (e.g. a file that is not a filter file)
-are shown in a popup.
+  Afterwards a summary dialog lists every file with its added, merged,
+  already present and skipped filters, including the choices made in the
+  prompts. If a filename shows that the file was exported from another
+  account than the one shown in the Message Filters dialog, the summary warns
+  about it; the filters are imported anyway.
 
 Requires Thunderbird 128 or newer. Tested with Thunderbird 153 ESR (Flatpak).
 
@@ -37,8 +61,9 @@ Requires Thunderbird 128 or newer. Tested with Thunderbird 153 ESR (Flatpak).
   two buttons into the Message Filters dialog and does the export and import
   with Thunderbird's filter service (`MailServices.filters`).
 - `src/filterLogic.mjs` - pure, Thunderbird-independent logic: export
-  filenames per filter, splitting filter files into one text block per
-  filter, and picking the filters that are new on import.
+  filenames per filter, splitting filter files into filters, conditions and
+  actions, merging an imported filter into a local one, and the texts of the
+  import prompts, the Filter Editor note and the summary.
 - `test/unit/` - unit tests for `src/filterLogic.mjs` (Node's built-in test
   runner).
 - `test/integration/` - end-to-end tests that run the built extension in a
