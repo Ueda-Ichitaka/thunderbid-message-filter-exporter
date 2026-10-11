@@ -5,9 +5,9 @@
   "type": "module",
   "description": "Thunderbird MailExtension that exports and imports per-account message filters.",
   "scripts": {
-    "test": "node --test test/unit/",
+    "test": "node --test \"test/unit/**/*.test.mjs\"",
     "build": "web-ext build",
-    "test:integration": "npm run build && node --test --test-concurrency=1 test/integration/"
+    "test:integration": "npm run build && node --test --test-concurrency=1 \"test/integration/**/*.test.mjs\""
   },
   "devDependencies": {
     "web-ext": "10.7.0"
