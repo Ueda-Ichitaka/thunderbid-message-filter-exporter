@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node
+node_modules/
+
+# Built Thunderbird extension package
+*.xpi
+test/import export files/

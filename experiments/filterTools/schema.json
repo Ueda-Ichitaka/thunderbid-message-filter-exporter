@@ -1,0 +1,14 @@
+[
+  {
+    "namespace": "filterTools",
+    "functions": [
+      {
+        "name": "initialize",
+        "type": "function",
+        "description": "Adds Import and Export buttons to Thunderbird's Message Filters dialog.",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]
