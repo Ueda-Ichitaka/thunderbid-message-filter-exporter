@@ -7,6 +7,7 @@ export default {
   artifactsDir: "dist",
   ignoreFiles: [
     "dist",
+    "scripts",
     "test",
     "package.json",
     "package-lock.json",

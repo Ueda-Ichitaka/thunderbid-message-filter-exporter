@@ -1,0 +1,56 @@
+# About me: Builds the Thunderbird add-on on every push to main. It runs the
+# unit tests, builds dist/message-filter-exporter-<version>.xpi (version from
+# manifest.json) and keeps it as a workflow artifact. If there is no GitHub
+# Release v<version> yet, it creates one with the .xpi attached; existing
+# releases are never changed, so every published version stays available
+# (see scripts/publish-release.sh). To publish a new release, bump the
+# version in manifest.json.
+
+name: Build and release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-and-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      - run: npm run build
+
+      - name: Read version from manifest.json
+        id: version
+        run: echo "version=$(node -p "require('./manifest.json').version")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: dist/message-filter-exporter-${{ steps.version.outputs.version }}.xpi
+          archive: false
+          if-no-files-found: error
+
+      - name: Publish release v${{ steps.version.outputs.version }} if new
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: bash scripts/publish-release.sh "$VERSION" "dist/message-filter-exporter-$VERSION.xpi"

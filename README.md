@@ -45,6 +45,8 @@ Requires Thunderbird 128 or newer. Tested with Thunderbird 153 ESR (Flatpak).
   real, headless Thunderbird with a throw-away profile, remote-controlled
   over Marionette.
 - `web-ext-config.mjs` - packaging configuration for `web-ext`.
+- `.github/workflows/build.yml`, `scripts/publish-release.sh` - GitHub build
+  and release pipeline (see "Releases" below).
 
 ## Building
 
@@ -55,6 +57,18 @@ npm run build
 
 This creates `dist/message-filter-exporter-<version>.xpi`, with the version
 from `manifest.json`.
+
+## Releases (GitHub)
+
+Every push to `main` runs `.github/workflows/build.yml` on GitHub: unit
+tests, then `npm run build`. The built `.xpi` is kept as an artifact of that
+workflow run. If there is no GitHub Release `v<version>` (version from
+`manifest.json`) yet, the workflow creates it, tags the pushed commit and
+attaches the `.xpi`. Existing releases are never changed or overwritten, so
+every published version stays downloadable from the Releases page.
+
+To publish a new version: raise `"version"` in `manifest.json`, then push to
+`main`. Pushes without a version change only build and test.
 
 ## Installing
 
